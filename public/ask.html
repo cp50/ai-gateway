@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Router Playground</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/styles.css" />
+</head>
+<body data-page="ask">
+  <div class="shell">
+    <div class="topbar">
+      <div class="brand">
+        <div class="brand-mark">AI Inference Gateway</div>
+        <h1>Router Playground</h1>
+        <p>Test the router like a product, not a CLI. This public demo shows intent detection, route choice, model usage, caching, and failover behavior.</p>
+      </div>
+      <nav class="nav">
+        <a href="/ask" data-page="ask">/ask</a>
+      </nav>
+    </div>
+
+    <div class="banner">
+      <div>
+        <strong>Demo Mode</strong><br />
+        This public playground uses a shared tenant key with strict quotas and rate limiting. Admin dashboards and tenant inspection stay private.
+      </div>
+      <div class="mono">POST /ask</div>
+    </div>
+
+    <div class="layout two-col">
+      <div class="stack">
+        <section class="card fade-in">
+          <div class="card-header">
+            <h2>Request Console</h2>
+            <div class="badges">
+              <span id="cache-badge" class="badge warn">Cache Miss</span>
+              <span id="failover-badge" class="badge good">Primary</span>
+            </div>
+          </div>
+          <div class="card-body field-grid">
+            <label>
+              Demo tenant API key
+              <div class="input-inline">
+                <input id="tenant-api-key" type="password" placeholder="sk_..." />
+                <button id="copy-demo-key" class="secondary" type="button">Copy Key</button>
+              </div>
+            </label>
+            <label>
+              Prompt
+              <textarea id="prompt-input" placeholder="Explain distributed systems and their failure recovery strategy."></textarea>
+            </label>
+            <div>
+              <div class="status-line">Try these prompts</div>
+              <div id="sample-prompts" class="chip-row"></div>
+            </div>
+            <div class="actions">
+              <button id="send-request">Send Through Router</button>
+              <button id="clear-request" class="secondary" type="button">Clear</button>
+            </div>
+            <div class="footer-note" id="request-hint">Send a prompt to see the router decision, trace, and token accounting.</div>
+            <div id="ask-error" class="error-box"></div>
+          </div>
+        </section>
+
+        <section class="card fade-in">
+          <div class="card-header">
+            <h2>Response</h2>
+            <p class="status-line">The router output appears here with no formatting tricks.</p>
+          </div>
+          <div class="card-body">
+            <div id="response-output" class="response-box empty-state">Send a prompt to see routing behavior.</div>
+          </div>
+        </section>
+      </div>
+
+      <div class="stack">
+        <section class="card fade-in">
+          <div class="card-header">
+            <h2>Router Decision</h2>
+            <p class="status-line">This is the control-plane view, not a chat transcript.</p>
+          </div>
+          <div class="card-body kv">
+            <div class="kv-row"><span class="kv-key">Intent</span><strong id="intent-value">-</strong></div>
+            <div class="kv-row"><span class="kv-key">Route</span><strong id="route-value" class="mono">-</strong></div>
+            <div class="kv-row"><span class="kv-key">Model</span><strong id="model-value" class="mono">-</strong></div>
+            <div class="kv-row"><span class="kv-key">Provider</span><strong id="provider-value">-</strong></div>
+            <div class="kv-row"><span class="kv-key">Latency</span><strong id="latency-value" class="mono">-</strong></div>
+            <div class="kv-row"><span class="kv-key">Cost</span><strong id="cost-value" class="mono">-</strong></div>
+            <div class="kv-row"><span class="kv-key">Tokens</span><strong id="usage-total-value" class="mono">-</strong></div>
+            <div class="kv-row"><span class="kv-key">Prompt / Completion</span><strong id="usage-breakdown-value" class="mono">-</strong></div>
+          </div>
+        </section>
+
+        <section class="card fade-in">
+          <div class="card-header">
+            <h2>Router Trace</h2>
+            <p class="status-line">Derived from the current backend pipeline.</p>
+          </div>
+          <div class="card-body">
+            <div id="trace-list" class="trace">
+              <div class="footer-note">Send a request to populate the trace.</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card fade-in">
+          <div class="card-header">
+            <h2>Recent Requests</h2>
+            <p class="status-line">Stored locally in your browser for demo continuity.</p>
+          </div>
+          <div class="card-body">
+            <div id="request-history" class="history"></div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+  <script src="/assets/app.js"></script>
+</body>
+</html>

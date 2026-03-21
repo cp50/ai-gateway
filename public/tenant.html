@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Router Tenant View</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/styles.css" />
+</head>
+<body data-page="tenant">
+  <div class="shell">
+    <div class="topbar">
+      <div class="brand">
+        <div class="brand-mark">Tenant Controls</div>
+        <h1>Usage View</h1>
+        <p>Inspect the shared demo tenant or your own tenant and see quota usage the same way a customer would.</p>
+      </div>
+      <nav class="nav">
+        <a href="/ask" data-page="ask">/ask</a>
+      </nav>
+    </div>
+
+    <div class="banner">
+      <div>
+        <strong>Private utility page</strong><br />
+        This screen is intentionally not linked from the public demo. Use it privately with the admin key when you need to inspect tenant quotas and reset timing.
+      </div>
+      <div class="mono">GET /admin/tenants/:apiKey</div>
+    </div>
+
+    <div class="layout two-col">
+      <section class="card fade-in">
+        <div class="card-header">
+          <h2>Lookup Tenant</h2>
+          <p class="status-line">This page reads the admin tenant endpoint, so it needs the admin key locally.</p>
+        </div>
+        <div class="card-body field-grid">
+          <label>
+            Admin API key
+            <input id="tenant-admin-key" type="password" placeholder="adm_..." />
+          </label>
+          <label>
+            Tenant API key
+            <input id="tenant-lookup-key" type="text" placeholder="sk_..." />
+          </label>
+          <div class="actions">
+            <button id="load-tenant">Load Tenant</button>
+          </div>
+          <div class="footer-note">Use this page privately to inspect quotas, usage, and reset timing. Keep the admin key off the public demo surface.</div>
+          <div id="tenant-error" class="error-box"></div>
+        </div>
+      </section>
+
+      <section class="card fade-in">
+        <div class="card-header">
+          <h2>Tenant Summary</h2>
+          <p class="status-line">These values come directly from the backend tenant record.</p>
+        </div>
+        <div class="card-body progress-group" id="tenant-summary">
+          <div class="kv-row"><span class="kv-key">Tenant name</span><strong id="tenant-name">-</strong></div>
+          <div class="kv-row"><span class="kv-key">Tenant ID</span><strong id="tenant-id" class="mono">-</strong></div>
+          <div class="kv-row"><span class="kv-key">Quota reset</span><strong id="tenant-reset" class="mono">-</strong></div>
+
+          <div>
+            <div class="progress-label"><span>Requests</span><strong id="tenant-requests">-</strong></div>
+            <div class="progress-rail"><div id="tenant-requests-bar" class="progress-fill" style="width: 0%"></div></div>
+          </div>
+
+          <div>
+            <div class="progress-label"><span>Tokens</span><strong id="tenant-tokens">-</strong></div>
+            <div class="progress-rail"><div id="tenant-tokens-bar" class="progress-fill" style="width: 0%"></div></div>
+          </div>
+
+          <div>
+            <div class="progress-label"><span>Cost</span><strong id="tenant-cost">-</strong></div>
+            <div class="progress-rail"><div id="tenant-cost-bar" class="progress-fill" style="width: 0%"></div></div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+  <script src="/assets/app.js"></script>
+</body>
+</html>

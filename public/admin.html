@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Router Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/styles.css" />
+</head>
+<body data-page="admin">
+  <div class="shell">
+    <div class="topbar">
+      <div class="brand">
+        <div class="brand-mark">Admin Console</div>
+        <h1>Observability Dashboard</h1>
+        <p>Track router throughput, cache performance, failover frequency, and live model health from one place.</p>
+      </div>
+      <nav class="nav">
+        <a href="/ask" data-page="ask">/ask</a>
+        <a href="/admin" data-page="admin">/admin</a>
+      </nav>
+    </div>
+
+    <div class="banner">
+      <div>
+        <strong>Private surface</strong><br />
+        Enter the admin key locally in this browser to call the protected admin endpoints.
+      </div>
+      <div class="mono">GET /admin/metrics</div>
+    </div>
+
+    <section class="card fade-in">
+      <div class="card-header">
+        <h2>Admin Access</h2>
+        <p class="status-line">No key is bundled into the page.</p>
+      </div>
+      <div class="card-body field-grid">
+        <label>
+          Admin API key
+          <input id="admin-key" type="password" placeholder="adm_..." />
+        </label>
+        <div class="actions">
+          <button id="load-admin">Refresh Metrics</button>
+        </div>
+        <div id="admin-error" class="error-box"></div>
+      </div>
+    </section>
+
+    <section class="card fade-in" style="margin-top: 18px;">
+      <div class="card-header">
+        <h2>Core Metrics</h2>
+        <p class="status-line">These counters come from persistent telemetry in Redis.</p>
+      </div>
+      <div class="card-body metrics-grid">
+        <div class="metric"><div class="metric-label">Requests</div><div id="requests-total" class="metric-value mono">0</div></div>
+        <div class="metric"><div class="metric-label">Cache Hit Rate</div><div id="cache-hit-rate" class="metric-value mono">0%</div></div>
+        <div class="metric"><div class="metric-label">Failover Rate</div><div id="failover-rate" class="metric-value mono">0%</div></div>
+        <div class="metric"><div class="metric-label">Average Latency</div><div id="avg-latency" class="metric-value mono">0 ms</div></div>
+      </div>
+    </section>
+
+    <div class="layout two-col" style="margin-top: 18px;">
+      <section class="card fade-in">
+        <div class="card-header">
+          <h2>Provider Latency</h2>
+          <p class="status-line">Live model health averages surfaced by provider family.</p>
+        </div>
+        <div class="card-body metrics-grid">
+          <div class="metric"><div class="metric-label">Llama</div><div id="llama-latency" class="metric-value mono">0 ms</div></div>
+          <div class="metric"><div class="metric-label">GPT-OSS</div><div id="gpt-latency" class="metric-value mono">0 ms</div></div>
+          <div class="metric"><div class="metric-label">Gemini</div><div id="gemini-latency" class="metric-value mono">0 ms</div></div>
+        </div>
+      </section>
+
+      <section class="card fade-in">
+        <div class="card-header">
+          <h2>What This Dashboard Proves</h2>
+          <p class="status-line">This product is an AI control plane, not a wrapper around one model.</p>
+        </div>
+        <div class="card-body response-box">
+It routes between models, tracks health over time, persists telemetry in Redis, and exposes an operational view that makes failure, cache behavior, and latency visible. This is the piece most people miss when they build AI apps.
+        </div>
+      </section>
+    </div>
+
+    <section class="card fade-in" style="margin-top: 18px;">
+      <div class="card-header">
+        <h2>Model Health</h2>
+        <p class="status-line">Health-aware routing reads from this state before selecting a model for a route.</p>
+      </div>
+      <div class="card-body table-wrap">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Model</th>
+              <th>Provider</th>
+              <th>Average Latency</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="health-table-body">
+            <tr>
+              <td colspan="4" class="footer-note">Load metrics to populate the health table.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+  <script src="/assets/app.js"></script>
+</body>
+</html>
