@@ -12,7 +12,7 @@ for AI model access.
 > by server load, it routes by request intent, model cost, and
 > live provider health signals.
 
-**Live demo:** [your-url-here]
+**Live demo:** https://yummy-albertina-chrisp04-b2a2897d.koyeb.app/ask
 
 ---
 
@@ -82,8 +82,8 @@ Prompt:   "What is an API?"
 Intent:   simple_question
 Route:    cheap_model
 Model:    llama-3.3-70b-versatile (Groq)
-Latency:  <replace with real measured value>
-Cost:     <replace with real measured value>
+Latency:  1312 ms
+Cost:     0
 Cache:    MISS
 Failover: none
 ```
@@ -95,8 +95,8 @@ Prompt:   "Design a scalable chat system"
 Intent:   architecture_review
 Route:    reasoning_model
 Model:    openai/gpt-oss-120b (Groq)
-Latency:  <replace with real measured value>
-Cost:     <replace with real measured value>
+Latency:  6421 ms
+Cost:     0
 Cache:    MISS
 Failover: none
 ```
