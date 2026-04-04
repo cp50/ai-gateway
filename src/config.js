@@ -9,6 +9,7 @@ const config = {
   port: toNumber(process.env.PORT, 3000),
   googleApiKey: process.env.GOOGLE_API_KEY || "",
   groqApiKey: process.env.GROQ_API_KEY || "",
+  anthropicApiKey: process.env.ANTHROPIC_API_KEY || "",
   redisUrl: process.env.REDIS_URL || "redis://localhost:6379",
   googleBaseUrl:
     process.env.GOOGLE_BASE_URL ||
