@@ -258,6 +258,44 @@ Open:
 
 ---
 
+## Health Endpoint
+
+```
+GET /health
+```
+
+Returns a JSON response indicating that the server process is running:
+
+```json
+{
+  "status": "ok",
+  "uptime": 1234.56
+}
+```
+
+**This is a liveness check**, not a readiness check. It confirms that the
+Node.js process is alive and can accept HTTP connections. It does **not**
+verify the availability of downstream dependencies such as Redis, Groq,
+or Gemini.
+
+**Liveness vs readiness:**
+
+| Check      | What it answers                                      | This endpoint |
+|------------|------------------------------------------------------|---------------|
+| Liveness   | Is the process running and responding to HTTP?       | Yes           |
+| Readiness  | Are downstream dependencies (Redis, providers) healthy? | No         |
+
+Readiness checks for Redis connectivity and provider health are not
+currently exposed through a dedicated endpoint. Provider health is
+tracked internally by the routing layer (`metricsStore.js`) and is
+visible through the authenticated `GET /admin/metrics` endpoint.
+
+If you are configuring health checks for a deployment platform
+(e.g. Koyeb, Railway, Kubernetes), use `/health` as the liveness
+probe. Do not rely on it to gate traffic readiness.
+
+---
+
 ## Deployment - Railway
 
 1. Create a new Railway project

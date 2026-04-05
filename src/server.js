@@ -199,6 +199,8 @@ function createApp(overrides = {}) {
     return res.sendFile(path.join(publicDir, "admin.html"));
   });
 
+  // Liveness check only — confirms the process is running.
+  // Does not verify downstream dependencies (Redis, providers).
   app.get("/health", (req, res) => {
     return res.json({
       status: "ok",
