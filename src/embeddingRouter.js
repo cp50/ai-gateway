@@ -342,10 +342,16 @@ async function detectIntentEmbedding(message) {
   };
 }
 
+async function embedText(text) {
+  await selectActiveModel();
+  return embedTextWithModel(activeEmbeddingModel, text);
+}
+
 module.exports = {
   detectIntentEmbedding,
   classifyIntentWithLLM,
   prewarmIntentEmbeddings,
   cosineSimilarity,
+  embedText,
   intentExamples
 };

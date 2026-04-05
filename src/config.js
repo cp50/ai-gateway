@@ -45,7 +45,8 @@ const config = {
   cache: {
     enabled: String(process.env.CACHE_ENABLED || "true").toLowerCase() === "true",
     ttlMs: toNumber(process.env.CACHE_TTL_MS, 300_000),
-    maxEntries: toNumber(process.env.CACHE_MAX_ENTRIES, 1000)
+    maxEntries: toNumber(process.env.CACHE_MAX_ENTRIES, 1000),
+    semanticThreshold: toNumber(process.env.CACHE_SEMANTIC_THRESHOLD, 0.92)
   }
 };
 

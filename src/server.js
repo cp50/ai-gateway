@@ -11,7 +11,7 @@ const routeIntent = require("./router");
 const { callCheapModel, callReasoningModel } = require("./modelCaller");
 const logUsage = require("./costTracker");
 const isLowConfidence = require("./confidenceChecker");
-const { getCacheKey, getCachedValue, setCachedValue, resetCache } = require("./cache");
+const { getCacheKey, getCachedValue, setCachedValue, semanticLookup, setSemanticCache, resetCache } = require("./cache");
 const { redisClient, connectRedis } = require("./redisClient");
 const systemMetrics = require("./systemMetrics");
 const { getAllHealth } = require("./metricsStore");
@@ -273,6 +273,21 @@ function createApp(overrides = {}) {
       });
     }
 
+    let queryVec = null;
+    const semResult = await semanticLookup(message);
+    if (semResult) {
+      queryVec = semResult.vec;
+      if (semResult.hit) {
+        systemMetrics.recordCacheHit();
+        res.setHeader("x-cache", "HIT-SEMANTIC");
+        return res.json({
+          ...semResult.hit,
+          requestId,
+          cached: true
+        });
+      }
+    }
+
     systemMetrics.recordCacheMiss();
 
     const intentResult = await detectIntent(message);
@@ -373,6 +388,7 @@ function createApp(overrides = {}) {
       };
 
       await setCachedValue(cacheKey, responsePayload);
+      setSemanticCache(message, queryVec, responsePayload).catch(() => {});
       res.setHeader("x-cache", "MISS");
 
       return res.json({
