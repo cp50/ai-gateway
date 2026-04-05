@@ -5,13 +5,14 @@ const config = require("./config");
 const {
   detectIntentEmbedding,
   classifyIntentWithLLM,
-  prewarmIntentEmbeddings
+  prewarmIntentEmbeddings,
+  embedText
 } = require("./embeddingRouter");
 const routeIntent = require("./router");
 const { callCheapModel, callReasoningModel } = require("./modelCaller");
 const logUsage = require("./costTracker");
 const isLowConfidence = require("./confidenceChecker");
-const { getCacheKey, getCachedValue, setCachedValue, resetCache } = require("./cache");
+const { getCacheKey, getCachedValue, setCachedValue, semanticLookup, setSemanticCache, resetCache } = require("./cache");
 const { redisClient, connectRedis } = require("./redisClient");
 const systemMetrics = require("./systemMetrics");
 const { getAllHealth } = require("./metricsStore");
@@ -177,6 +178,7 @@ function createApp(overrides = {}) {
   const authMiddleware = overrides.authenticateRequest || authenticateRequest;
   const quotaMiddleware = overrides.enforceTenantQuota || enforceTenantQuota;
   const adminAuthMiddleware = overrides.authenticateAdmin || authenticateAdmin;
+  const embed = overrides.embedText || embedText;
   const app = express();
   const publicDir = path.join(__dirname, "..", "public");
   app.use(express.json({ limit: "1mb" }));
@@ -273,9 +275,27 @@ function createApp(overrides = {}) {
       });
     }
 
+    let queryVec = null;
+    try {
+      queryVec = await embed(message);
+    } catch {
+      // embedding unavailable, skip semantic cache and use LLM intent
+    }
+
+    const semResult = await semanticLookup(message, queryVec);
+    if (semResult && semResult.hit) {
+      systemMetrics.recordCacheHit();
+      res.setHeader("x-cache", "HIT-SEMANTIC");
+      return res.json({
+        ...semResult.hit,
+        requestId,
+        cached: true
+      });
+    }
+
     systemMetrics.recordCacheMiss();
 
-    const intentResult = await detectIntent(message);
+    const intentResult = await detectIntent(message, queryVec);
 
     let intent;
     let intentConfidence;
@@ -373,6 +393,7 @@ function createApp(overrides = {}) {
       };
 
       await setCachedValue(cacheKey, responsePayload);
+      setSemanticCache(message, queryVec, responsePayload).catch(() => {});
       res.setHeader("x-cache", "MISS");
 
       return res.json({

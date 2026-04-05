@@ -301,10 +301,10 @@ async function classifyIntentWithLLM(message) {
   };
 }
 
-async function detectIntentEmbedding(message) {
+async function detectIntentEmbedding(message, precomputedVec) {
   await prewarmIntentEmbeddings();
 
-  const queryVector = await embedTextWithModel(activeEmbeddingModel, message);
+  const queryVector = precomputedVec || await embedTextWithModel(activeEmbeddingModel, message);
   let bestIntent = "simple_question";
   let bestScore = -1;
 
@@ -342,10 +342,16 @@ async function detectIntentEmbedding(message) {
   };
 }
 
+async function embedText(text) {
+  await selectActiveModel();
+  return embedTextWithModel(activeEmbeddingModel, text);
+}
+
 module.exports = {
   detectIntentEmbedding,
   classifyIntentWithLLM,
   prewarmIntentEmbeddings,
   cosineSimilarity,
+  embedText,
   intentExamples
 };
