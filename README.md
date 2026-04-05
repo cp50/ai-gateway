@@ -291,37 +291,63 @@ tracked internally by the routing layer (`metricsStore.js`) and is
 visible through the authenticated `GET /admin/metrics` endpoint.
 
 If you are configuring health checks for a deployment platform
-(e.g. Koyeb, Railway, Kubernetes), use `/health` as the liveness
-probe. Do not rely on it to gate traffic readiness.
+(e.g. Koyeb, Kubernetes), use `/health` as the liveness probe.
+Do not rely on it to gate traffic readiness.
 
 ---
 
-## Deployment - Railway
+## Deployment - Koyeb + Upstash
 
-1. Create a new Railway project
-2. Add a Redis service
-3. Deploy this repo as a Node service
-4. Set environment variables:
+The live demo runs on Koyeb (Frankfurt) with Upstash Redis (Mumbai).
+Both have free tiers, no credit card required.
+
+### 1. Set up Redis on Upstash
+
+1. Create a free account at [upstash.com](https://upstash.com)
+2. Create a new Redis database (any region works, the demo uses `ap-south-1`)
+3. Copy the Redis URL from the database details page — it looks like
+   `rediss://default:xxx@region.upstash.io:6379`
+
+### 2. Deploy to Koyeb
+
+1. Create a free account at [koyeb.com](https://koyeb.com)
+2. Create a new Web Service and connect your GitHub repo (or fork)
+3. Set the build and run commands:
+   - **Build:** `npm install`
+   - **Run:** `node src/server.js`
+4. Set the region to Frankfurt (or whichever you prefer)
+5. Add environment variables:
 
 ```text
 GOOGLE_API_KEY=
 GROQ_API_KEY=
-REDIS_URL=
+REDIS_URL=rediss://default:xxx@region.upstash.io:6379
 ADMIN_API_KEY=
 DEMO_MODE=true
 DEMO_TENANT_API_KEY=
-PORT=3000
+PORT=8000
 ```
 
-5. Seed the shared demo tenant:
+Note: Koyeb exposes port `8000` by default. Set `PORT=8000` or configure
+the port in your Koyeb service settings.
+
+6. Set the health check path to `/health`
+7. Deploy
+
+### 3. Seed the demo tenant
+
+Once the service is running, open the Koyeb console shell (or run locally
+against the same Redis) and run:
 
 ```bash
 node scripts/createTenant.js "demo"
 ```
 
-Use that output as `DEMO_TENANT_API_KEY`.
+Use the output key as `DEMO_TENANT_API_KEY` in your Koyeb env vars and
+redeploy.
 
-Recommended demo posture:
+### Demo safety
+
 - keep `DEMO_MODE=true`
 - use one shared demo tenant key
 - keep quotas low on the demo tenant
