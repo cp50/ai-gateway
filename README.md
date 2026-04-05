@@ -157,6 +157,7 @@ restarts when Redis is available.
 src/
 |-- providers/
 |   |-- groq.js              # Provider adapter - isolates Groq HTTP details
+|   |-- anthropic.js         # Anthropic Claude adapter
 |-- server.js                # Orchestration - request pipeline and endpoint wiring
 |-- router.js                # Route decision + health-aware model selection
 |-- embeddingRouter.js       # Intent detection - embeddings + LLM fallback
