@@ -11,7 +11,7 @@
 
 If you find a security issue, please report it privately — don't open a public issue.
 
-**Email:** reach out to the maintainer via GitHub ([@cp50](https://github.com/cp50))
+**Contact:** reach out to the maintainer via GitHub ([@cp50](https://github.com/cp50))
 
 Include as much detail as you can:
 
