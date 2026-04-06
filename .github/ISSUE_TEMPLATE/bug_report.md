@@ -29,7 +29,7 @@ What actually happened?
 
 ## Environment
 - Node.js version:
-- Deployment: (local / Railway / Koyeb / other)
+- Deployment: (local / Koyeb / other)
 - Redis: (Upstash / local / in-memory fallback)
 - DEMO_MODE: (true / false)
 
