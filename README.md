@@ -4,19 +4,23 @@
 
 # AI Gateway - Intelligent LLM Routing Infrastructure
 
-An AI inference gateway that sits between applications and LLM
-providers, intelligently routing each request to the most
-appropriate model based on intent, cost, and real-time provider
-health.
+A control plane for AI model access. Routes each request to the right
+model based on intent, cost, and provider health — so you don't burn
+money sending "what is an API?" to GPT-4.
 
-This is not a chatbot. It is infrastructure: a control plane
-for AI model access.
+> **[Try it live](https://yummy-albertina-chrisp04-b2a2897d.koyeb.app/ask)** — no signup, no API key needed.
 
-> Like a load balancer for web servers, but instead of balancing
-> by server load, it routes by request intent, model cost, and
-> live provider health signals.
+## Why Use This
 
-**Live demo:** https://yummy-albertina-chrisp04-b2a2897d.koyeb.app/ask
+| Without a gateway | With AI Gateway |
+|---|---|
+| Every request hits the same expensive model | Simple questions go to cheap models, hard ones to reasoning models |
+| One provider goes down, your app goes down | Automatic failover between providers |
+| No idea what you're spending per tenant | Per-tenant quotas, cost tracking, usage metrics |
+| Duplicate prompts = duplicate API calls | Two-layer cache (exact + semantic) saves repeated calls |
+
+If you run multiple LLMs in production and want to stop overpaying
+for simple queries, this is the routing layer that sits in front.
 
 ---
 
