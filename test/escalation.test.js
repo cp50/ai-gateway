@@ -43,7 +43,8 @@ function makeApp(cheapOutput, reasoningOutput) {
         };
       }
     },
-    intentDetector: async () => ({ intent: "simple_question", confidence: 0.95 })
+    intentDetector: async () => ({ intent: "simple_question", confidence: 0.95 }),
+    embedText: async () => [0, 0, 0]
   });
 
   return { app, calls };
