@@ -432,4 +432,4 @@ if (require.main === module) {
     });
 }
 
-module.exports = { createApp, validateMessage, rateLimit, resetRateLimits, resetCache };
+module.exports = { createApp, validateMessage, rateLimit, resetRateLimits, resetCache, ensureDemoTenant };
