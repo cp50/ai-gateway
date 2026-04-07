@@ -9,15 +9,17 @@
 
 ## Reporting a Vulnerability
 
-If you find a security issue, please report it privately — don't open a public issue.
+If you find a security issue, please report it privately. Do not open a public issue.
 
-**Contact:** reach out to the maintainer via GitHub ([@cp50](https://github.com/cp50))
+**Private reporting:** use GitHub private vulnerability reporting when available, or contact the maintainer privately via GitHub ([@cp50](https://github.com/cp50)).
 
 Include as much detail as you can:
 
 - Steps to reproduce
 - Affected components (auth, caching, provider routing, etc.)
 - Potential impact
+
+Please do not include real API keys, tokens, or other secrets in reports. Redact sensitive values before sharing logs, payloads, or reproduction steps.
 
 ## What to Expect
 
@@ -27,9 +29,9 @@ Include as much detail as you can:
 
 ## Scope
 
-This policy covers the ai-gateway codebase and its default configuration. Third-party provider APIs and their security are outside scope.
+This policy covers the `ai-gateway` codebase and its default configuration. Third-party provider APIs and their own infrastructure are outside scope.
 
-Things we care about:
+Examples of issues in scope:
 
 - API key exposure or leakage
 - Authentication bypass
