@@ -425,3 +425,5 @@ This is not a prompt-engineering demo.
 It is infrastructure. The value is in the routing intelligence,
 the resilience layers, the tenant controls, and the
 observability - not in the generated text alone.
+
+If you find this useful, a ⭐ helps others find it.
