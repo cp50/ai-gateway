@@ -42,6 +42,7 @@ const config = {
     maxRequests: toNumber(process.env.RATE_LIMIT_MAX_REQUESTS, 60)
   },
   maxMessageChars: toNumber(process.env.MAX_MESSAGE_CHARS, 8000),
+  confidenceThreshold: toNumber(process.env.CONFIDENCE_THRESHOLD, 0.6),
   cache: {
     enabled: String(process.env.CACHE_ENABLED || "true").toLowerCase() === "true",
     ttlMs: toNumber(process.env.CACHE_TTL_MS, 300_000),
