@@ -38,6 +38,21 @@ This gateway addresses all three.
 
 ---
 
+## Architecture Overview
+
+```mermaid
+flowchart TD
+    A[Client Request] --> B[Auth + Quota]
+    B --> C{Cache Hit?}
+    C -- Exact/Semantic --> G[Response]
+    C -- Miss --> D[Intent Detection]
+    D --> E[Model Routing]
+    E --> F[Provider / LLM]
+    F --> G[Response]
+```
+
+---
+
 ## How It Works - Request Pipeline
 
 Each request moves through a layered pipeline before a response
