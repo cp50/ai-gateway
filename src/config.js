@@ -10,6 +10,7 @@ const config = {
   googleApiKey: process.env.GOOGLE_API_KEY || "",
   groqApiKey: process.env.GROQ_API_KEY || "",
   anthropicApiKey: process.env.ANTHROPIC_API_KEY || "",
+  openaiApiKey: process.env.OPENAI_API_KEY || "",
   redisUrl: process.env.REDIS_URL || "redis://localhost:6379",
   googleBaseUrl:
     process.env.GOOGLE_BASE_URL ||
@@ -19,7 +20,8 @@ const config = {
     cheap: process.env.CHEAP_MODEL || "llama-3.3-70b-versatile",
     reasoning: process.env.REASONING_MODEL || "openai/gpt-oss-120b",
     fallback: process.env.FALLBACK_MODEL || "gemini-2.5-flash",
-    classifier: process.env.CLASSIFIER_MODEL || "llama-3.3-70b-versatile"
+    classifier: process.env.CLASSIFIER_MODEL || "llama-3.3-70b-versatile",
+    openai: process.env.OPENAI_MODEL || "gpt-4o-mini"
   },
   pricing: {
     cheap: {
