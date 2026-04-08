@@ -414,6 +414,15 @@ Current tests cover modules such as:
 - routing logic
 - server pipeline behavior
 
+Integration tests cover critical system paths including:
+
+- **Auth validation** — requests without an API key or with an invalid key return 401 before any AI execution happens
+- **Quota enforcement** — request, token, and cost quotas each return 429 when exhausted; valid tenants within quota pass through
+- **Admin route protection** — admin endpoints reject missing or wrong admin keys with 401/403; valid keys return expected data
+- **Demo tenant auto-seeding** — when `DEMO_MODE=true` and `DEMO_TENANT_API_KEY` is set, `ensureDemoTenant()` seeds the tenant on startup so cold deployments work without manual setup
+
+These tests run against a real server instance with an in-memory Redis fallback, so no external services are needed.
+
 ---
 
 ## Tech Stack
