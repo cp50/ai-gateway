@@ -9,3 +9,8 @@ test("cosineSimilarity returns 1 for identical vectors", () => {
 test("cosineSimilarity returns -1 for invalid vectors", () => {
   assert.equal(cosineSimilarity([1, 2], [1]), -1);
 });
+
+test("config.embedding.prewarmDisabled is false by default", () => {
+  const config = require("../src/config");
+  assert.equal(config.embedding.prewarmDisabled, false);
+});

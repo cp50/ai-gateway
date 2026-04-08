@@ -48,6 +48,9 @@ const config = {
     ttlMs: toNumber(process.env.CACHE_TTL_MS, 300_000),
     maxEntries: toNumber(process.env.CACHE_MAX_ENTRIES, 1000),
     semanticThreshold: toNumber(process.env.CACHE_SEMANTIC_THRESHOLD, 0.92)
+  },
+  embedding: {
+    prewarmDisabled: String(process.env.DISABLE_EMBEDDING_PREWARM || "false").toLowerCase() === "true"
   }
 };
 

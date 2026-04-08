@@ -99,6 +99,11 @@ async function ensureDemoTenant() {
 }
 
 function startEmbeddingPrewarm() {
+  if (config.embedding.prewarmDisabled) {
+    console.log("Embedding prewarm skipped (DISABLE_EMBEDDING_PREWARM=true).");
+    return;
+  }
+
   prewarmIntentEmbeddings()
     .then(() => {
       console.log("Embedding prewarm completed successfully.");
