@@ -4,6 +4,7 @@ const http = require("node:http");
 const { Readable } = require("node:stream");
 const { createApp, resetRateLimits, resetCache } = require("../src/server");
 const { redisClient, connectRedis } = require("../src/redisClient");
+const { getCachedValue, getCacheKey } = require("../src/cache");
 
 const TENANT_KEY = "sk_test_stream";
 
@@ -135,6 +136,83 @@ test("SSE streaming", async (t) => {
       assert.ok(done, "should have done event");
       assert.equal(done.data.response, "Hello world!");
       assert.equal(done.data.model, "test-model");
+      assert.equal(done.data.escalated, false);
+    } finally {
+      server.close();
+    }
+  });
+
+  await t.test("writes response to cache after SSE stream", async () => {
+    const msg = "cached sse message " + Date.now();
+    const app = createApp({
+      modelCaller: {
+        callCheapModel: async () => ({ ok: true, output: "cached", model: "stub", cost: 0, latency: 1, usage: { promptTokens: 0, completionTokens: 0, totalTokens: 0 } }),
+        callReasoningModel: async () => ({ ok: true, output: "cached", model: "stub", cost: 0, latency: 1, usage: { promptTokens: 0, completionTokens: 0, totalTokens: 0 } }),
+        streamCheapModel: async () => ({
+          stream: fakeGroqStream(["cached response"]),
+          model: "stub-stream",
+          startTime: Date.now()
+        }),
+        streamReasoningModel: async () => ({
+          stream: fakeGroqStream(["reasoning"]),
+          model: "stub-reasoning",
+          startTime: Date.now()
+        })
+      },
+      intentDetector: async () => ({ intent: "general", confidence: 0.9, uncertain: false }),
+      embedText: async () => [0, 0, 0]
+    });
+
+    const server = await listen(app);
+    try {
+      await requestSSE(server, { message: msg });
+      const cached = await getCachedValue(getCacheKey(msg));
+      assert.ok(cached, "response should be in cache after SSE");
+      assert.equal(cached.response, "cached response");
+    } finally {
+      server.close();
+    }
+  });
+
+  await t.test("escalates to reasoning model when cheap response is low confidence", async () => {
+    let reasoningCalled = false;
+    const app = createApp({
+      modelCaller: {
+        callCheapModel: async () => ({ ok: true, output: "i'm not sure", model: "stub", cost: 0, latency: 1, usage: { promptTokens: 0, completionTokens: 0, totalTokens: 0 } }),
+        callReasoningModel: async () => {
+          reasoningCalled = true;
+          return { ok: true, output: "detailed reasoning answer", model: "reasoning-stub", cost: 0, latency: 1, usage: { promptTokens: 10, completionTokens: 20, totalTokens: 30 } };
+        },
+        streamCheapModel: async () => ({
+          // low-confidence phrase triggers escalation
+          stream: fakeGroqStream(["i'm not sure about this"]),
+          model: "cheap-stub",
+          startTime: Date.now()
+        }),
+        streamReasoningModel: async () => ({
+          stream: fakeGroqStream(["reasoning"]),
+          model: "reasoning-stub",
+          startTime: Date.now()
+        })
+      },
+      intentDetector: async () => ({ intent: "general", confidence: 0.9, uncertain: false }),
+      embedText: async () => [0, 0, 0]
+    });
+
+    const server = await listen(app);
+    try {
+      const { events } = await requestSSE(server, { message: "what is X?" });
+      assert.ok(reasoningCalled, "reasoning model should be called for escalation");
+
+      const escalating = events.find(e => e.event === "escalating");
+      assert.ok(escalating, "should have escalating event");
+      assert.equal(escalating.data.reason, "low_confidence");
+
+      const done = events.find(e => e.event === "done");
+      assert.ok(done, "should have done event");
+      assert.equal(done.data.escalated, true);
+      assert.equal(done.data.response, "detailed reasoning answer");
+      assert.equal(done.data.route, "reasoning_model");
     } finally {
       server.close();
     }
@@ -175,7 +253,8 @@ test("SSE streaming", async (t) => {
           r.on("end", () => resolve({ status: r.statusCode, body: JSON.parse(data) }));
         });
         req.on("error", reject);
-        req.write(JSON.stringify({ message: "hi" }));
+        // unique message to avoid cache hit from SSE test above
+        req.write(JSON.stringify({ message: "json only no sse " + Date.now() }));
         req.end();
       });
 

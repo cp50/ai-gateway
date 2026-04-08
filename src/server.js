@@ -355,6 +355,7 @@ function createApp(overrides = {}) {
         sendEvent("model", { model });
 
         let buf = "";
+        let streamUsage = null;
         stream.on("data", (chunk) => {
           const lines = chunk.toString().split("\n").filter(l => l.trim());
           for (const line of lines) {
@@ -368,6 +369,13 @@ function createApp(overrides = {}) {
                 buf += token;
                 sendEvent("token", { token });
               }
+              if (parsed.usage) {
+                streamUsage = {
+                  promptTokens: parsed.usage.prompt_tokens || 0,
+                  completionTokens: parsed.usage.completion_tokens || 0,
+                  totalTokens: parsed.usage.total_tokens || 0
+                };
+              }
             } catch {}
           }
         });
@@ -377,16 +385,81 @@ function createApp(overrides = {}) {
           stream.on("error", reject);
         });
 
-        const latency = Date.now() - startTime;
+        const modelLatency = Date.now() - startTime;
+        const usage = streamUsage || {
+          promptTokens: 0,
+          completionTokens: Math.ceil(buf.length / 4),
+          totalTokens: Math.ceil(buf.length / 4)
+        };
 
-        sendEvent("done", {
-          response: buf,
-          model,
-          route: preferredRoute,
-          latency
+        let finalBuf = buf;
+        let finalModel = model;
+        let finalRoute = preferredRoute;
+        let finalUsage = usage;
+        let escalated = false;
+
+        // mirror non-streaming escalation: if cheap model returns low-confidence
+        // output, transparently upgrade to reasoning model
+        if (preferredRoute === "cheap_model" && isLowConfidence(buf, intent)) {
+          try {
+            const escalationResult = await callReasoning(message);
+            if (escalationResult.ok) {
+              escalated = true;
+              finalBuf = escalationResult.output;
+              finalModel = escalationResult.model;
+              finalRoute = "reasoning_model";
+              finalUsage = escalationResult.usage || usage;
+              if (escalationResult.failover) systemMetrics.recordFailover();
+              sendEvent("escalating", { reason: "low_confidence", from: model, to: escalationResult.model });
+            }
+          } catch (escalationError) {
+            console.error("SSE escalation failed:", escalationError.message);
+          }
+        }
+
+        const endToEndLatency = Date.now() - startedAt;
+        systemMetrics.recordLatency(endToEndLatency);
+
+        logUsage({
+          requestId,
+          intent,
+          route: finalRoute,
+          model: finalModel,
+          cost: 0,
+          latency: endToEndLatency,
+          usage: finalUsage
         });
 
-        systemMetrics.recordLatency(Date.now() - startedAt);
+        try {
+          await recordTenantUsage(req.tenant.apiKey, { ...finalUsage, cost: 0 });
+        } catch (tenantError) {
+          console.error("Tenant usage update failed:", tenantError.message);
+        }
+
+        const responsePayload = {
+          intent,
+          intentConfidence,
+          intentSource,
+          route: finalRoute,
+          model: finalModel,
+          response: finalBuf,
+          latency: endToEndLatency,
+          cost: 0,
+          usage: finalUsage,
+          failover: false
+        };
+
+        await setCachedValue(cacheKey, responsePayload);
+        setSemanticCache(message, queryVec, responsePayload).catch(() => {});
+
+        sendEvent("done", {
+          response: finalBuf,
+          model: finalModel,
+          route: finalRoute,
+          latency: modelLatency,
+          escalated
+        });
+
         res.end();
         return;
       } catch (err) {
