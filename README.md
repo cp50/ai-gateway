@@ -459,7 +459,7 @@ These tests run against a real server instance with an in-memory Redis fallback,
 
 ## Tech Stack
 
-Node.js | Express | Redis | Groq API | OpenAI API | Google Gemini API |
+Node.js | Express | Redis | Groq API | Google Gemini API |
 Transformers.js | BGE embeddings | Node.js test runner
 
 ---
