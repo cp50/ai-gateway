@@ -193,6 +193,7 @@ src/
 |-- providers/
 |   |-- groq.js              # Provider adapter - isolates Groq HTTP details
 |   |-- anthropic.js         # Anthropic Claude adapter
+|   |-- openai.js            # OpenAI adapter (gpt-4o, gpt-4o-mini)
 |   |-- bge.js               # Local BGE embedding adapter via Transformers.js
 |-- server.js                # Orchestration - request pipeline and endpoint wiring
 |-- router.js                # Route decision + health-aware model selection
@@ -458,7 +459,7 @@ These tests run against a real server instance with an in-memory Redis fallback,
 
 ## Tech Stack
 
-Node.js | Express | Redis | Groq API | Google Gemini API |
+Node.js | Express | Redis | Groq API | OpenAI API | Google Gemini API |
 Transformers.js | BGE embeddings | Node.js test runner
 
 ---
